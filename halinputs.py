@@ -45,7 +45,8 @@ class WhereAmIResponse(HAL9000Response):
             return None
 
     def Respond(agent, world, data):
-        agent.terminal.log(agent.location, align='right', color='#00805A')
+        agent.out.set_output_params({'align': 'right', 'color': '#00805A'})
+        agent.out.puts(agent.location)
 
 
 class HAL9000Chatbot(Chat):
@@ -55,12 +56,23 @@ class HAL9000Chatbot(Chat):
     def __init__(self, agent, pairs):
         super(HAL9000Chatbot, self).__init__(pairs, reflections)
         self.agent = agent;
+        # use a stack to create different context
+        self.contexts = [self._respond]
 
     def add_response(self, pair):
         """Add new responses to the agent database"""
         pass
 
+    def push_context(self,c):
+        self.contexts.append(c)
+
+    def pop_context(self):
+        self.contexts.pop()
+
     def respond(self, text, world):
+        self.contexts[-1](text,world)
+
+    def _respond(self,text,world):
         # check each pattern
         for (pattern, response) in self._pairs:
             match = pattern.match(text)
@@ -78,5 +90,6 @@ class HAL9000Chatbot(Chat):
                     # fix munged punctuation at the end
                     if resp[-2:] == '?.': resp = resp[:-2] + '.'
                     if resp[-2:] == '??': resp = resp[:-2] + '?'
-                    self.agent.terminal.log(resp, align='right', color='#00805A')
+                    self.agent.out.set_output_params( {'align':'right', 'color':'#00805A'} )
+                    self.agent.out.puts(resp)
                 return

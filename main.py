@@ -25,7 +25,9 @@ class Application(object):
         # beginner's
         #self.agent = halagents.HAL9001(self.window)
         # intermediate's
-        self.agent = halagents.HAL9002(self.window,haldata.WORLD)
+        #self.agent = halagents.HAL9002(self.window,haldata.WORLD)
+        # void
+        self.agent = halagents.HAL9003(self.window,haldata.WORLD)
 
         # Connect the terminal's existing events.
         self.window.events.user_input.connect(self.agent.on_input)

@@ -4,6 +4,8 @@ import vispy
 
 import halinputs
 
+import haloutputs
+
 import halcommands
 
 import haldata
@@ -46,6 +48,7 @@ class HAL9001(HAL9000):
     """
     def __init__(self, terminal):
         super(HAL9001,self).__init__(terminal)
+        self.out = haloutputs.TerminalWindowWrapper(terminal)
         self.responses = [ halinputs.WhereAmIResponse(self), halinputs.DefaultResponse(self) ]
         self.commands = { 
                 'relocate' : halcommands.RelocateCommandFactory(self), 
@@ -55,9 +58,9 @@ class HAL9001(HAL9000):
 
     def on_input(self,evt):
         for r in self.responses:
-            out = r.match(evt,None)
-            if out:
-                self.terminal.log(out, align='right', color='#00805A')
+            output = r.match(evt,None)
+            if output:
+                self.out.puts( output, {'align':'right', 'color':'#00805A'})
                 break
 
     def on_command(self,evt):
@@ -68,6 +71,9 @@ class HAL9001(HAL9000):
             self.commands[command](evt,None)
         else :
             self.commands[''](evt,None)
+
+    def on_output(self,output):
+        self.out.puts(output)
 
 
 class HAL9002(HAL9000):
@@ -82,11 +88,42 @@ class HAL9002(HAL9000):
         self.chatter = halinputs.HAL9000Chatbot(self,haldata.HAL9000_RESPONSES)
         #use another one for the commands
         self.cmder = halcommands.ChatbotCommands(self,halcommands.COMMANDS)
+
+        self.out = haloutputs.TerminalWindowWrapper(terminal)
+
         # greetings
-        self.terminal.log( 'Hi this is HAL9000!' , align='right', color='#00805A')
+        self.out.set_output_params( {'align':'right', 'color':'#00805A'} )
+        self.out.puts( 'Hi this is HAL9000!')
 
     def on_input(self,evt):
         self.chatter.respond(evt.text,self.world)
 
     def on_command(self,evt):
         self.cmder(evt,self.world)
+
+    def on_output(self,output):
+        self.out.puts(output)
+
+class HAL9003(HAL9000):
+    def __init__(self, terminal, world):
+        super(HAL9003,self).__init__(terminal)
+        # choose a random start position
+        self.location = random.choice( world['map'] )
+        self.world = world
+        # use a chat for the input
+        self.chatter = halinputs.HAL9000Chatbot(self,haldata.HAL9000_RESPONSES)
+        #use another one for the commands
+        self.cmder = halcommands.ChatbotCommands(self,halcommands.COMMANDS)
+
+        self.out = haloutputs.VoiceAndTextOutput(terminal)
+        # greetings
+        self.out.puts( 'Hi this is HAL!')
+
+    def on_input(self,evt):
+        self.chatter.respond(evt.text,self.world)
+
+    def on_command(self,evt):
+        self.cmder(evt,self.world)
+
+    def on_output(self,output):
+        self.out.puts(output)
