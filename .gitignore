@@ -1,0 +1,12 @@
+.idea/.name
+.idea/encodings.xml
+.idea/misc.xml
+.idea/pmgai-hal9000.iml
+.idea/workspace.xml
+.idea/modules.xml
+.idea/vcs.xml
+__pycache__/halagents.cpython-34.pyc
+__pycache__/halinputs.cpython-34.pyc
+__pycache__/halcommands.cpython-34.pyc
+__pycache__/haldata.cpython-34.pyc
+__pycache__/window.cpython-34.pyc
