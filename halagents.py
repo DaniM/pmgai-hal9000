@@ -1,5 +1,3 @@
-import window                   # Terminal input and display.
-
 import vispy
 
 import halinputs
@@ -7,6 +5,8 @@ import halinputs
 import haloutputs
 
 import halcommands
+
+import halchat
 
 import haldata
 
@@ -49,7 +49,7 @@ class HAL9001(HAL9000):
     def __init__(self, terminal):
         super(HAL9001,self).__init__(terminal)
         self.out = haloutputs.TerminalWindowWrapper(terminal)
-        self.responses = [ halinputs.WhereAmIResponse(self), halinputs.DefaultResponse(self) ]
+        self.responses = [ halchat.WhereAmIResponse(self), halchat.DefaultResponse(self) ]
         self.commands = { 
                 'relocate' : halcommands.RelocateCommandFactory(self), 
                 'quit' : halcommands.QuitCommandFactory(self),
@@ -85,7 +85,7 @@ class HAL9002(HAL9000):
         self.location = random.choice( world['map'] )
         self.world = world
         # use a chat for the input
-        self.chatter = halinputs.HAL9000Chatbot(self,haldata.HAL9000_RESPONSES)
+        self.chatter = halchat.HAL9000Chatbot(self,haldata.HAL9000_RESPONSES)
         #use another one for the commands
         self.cmder = halcommands.ChatbotCommands(self,halcommands.COMMANDS)
 
@@ -111,7 +111,7 @@ class HAL9003(HAL9000):
         self.location = random.choice( world['map'] )
         self.world = world
         # use a chat for the input
-        self.chatter = halinputs.HAL9000Chatbot(self,haldata.HAL9000_RESPONSES)
+        self.chatter = halchat.HAL9000Chatbot(self,haldata.HAL9000_RESPONSES)
         #use another one for the commands
         self.cmder = halcommands.ChatbotCommands(self,halcommands.COMMANDS)
 

@@ -1,5 +1,7 @@
 import win32com.client
 
+
+
 # little wrappers for voice and text
 
 class HALOutput:

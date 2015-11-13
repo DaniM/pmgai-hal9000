@@ -68,12 +68,12 @@ def QuitCommandFactory(agent):
 
 def UnrecognizedCommand(agent,world,match):
     agent.out.set_output_params( {'align':'left', 'color':'#ff3000'} )
-    agent.out.puts('Command `{}` unknown.'.format(match.group('command')))
+    agent.out.puts('Command `{}` unknown.'.format(match['command']))
     agent.out.set_output_params( {'align':'right', 'color':'#00805A'} )
     agent.out.puts("I'm afraid I can't do that.")
 
 def RelocateCommand(agent,world,match):
-    location = match.group('location')
+    location = match['location']
     if location in world['map']:
         if agent.location == location:
             agent.out.set_output_params( {'align':'right', 'color':'#00805A'} )
@@ -90,20 +90,43 @@ def QuitCommand(agent,world,match):
     vispy.app.quit()
 
 def SimpleInteractCommand( agent, world, match ):
-    object_name = match.group( 'object' )
-    interaction = match.group('verb')
+    object_name = match['object']
+    interaction = match['verb']
     if object_name in world['devices'][agent.location]:
         # the object exists, can we interact with it?
         obj = world[agent.location][object_name]
 
         # check if it's a list (we have to enumerate)
-        if isinstance( obj, list ):
-            #TODO: create a closure and push it as context for the next input
-            pass
+        if isinstance(obj,list):
+            if len(obj) > 1:
+                #TODO: create a closure and push it as context for the next input
+                agent.out.set_output_params( {'align':'right', 'color':'#00805A'} )
+                agent.out.puts("Which one? {0}".format(str(obj)))
+            else:
+                #it refers to another object, recursive call
+                match['object'] = obj[0]
+                SimpleInteractCommand(agent, world, match)
         else:
             # can interact?
             transitions = obj['transitions']
-            #TODO
+            for t in transitions:
+                if t[0] == interaction:
+                    # now check if we are on the state already
+                    if t[2] != obj['state']:
+                        if obj['state'] in t[1]:
+                            agent.out.set_output_params( {'align':'center', 'color':'#404040'} )
+                            agent.out.puts('')
+                            obj['state'] = t[2]
+                            agent.out.puts('\u2014 {0} {1}. \u2014'.format(object_name, obj['state']))
+                        else:
+                            agent.out.set_output_params( {'align':'right', 'color':'#00805A'} )
+                            agent.out.puts('{0} {1}. Can\'t {0}'.format(object_name, obj['state'], interaction))
+                    else:
+                        agent.out.set_output_params( {'align':'right', 'color':'#00805A'} )
+                        agent.out.puts("{0} {1} already".format(object_name,obj['state']))
+                    return
+            agent.out.set_output_params( {'align':'right', 'color':'#00805A'} )
+            agent.out.puts('Can\'t {0} {1}'.format(interaction,object_name))
     else:
         agent.out.set_output_params( {'align':'right', 'color':'#00805A'} )
         agent.out.puts("No {0} to {1}".format(object_name,interaction))
@@ -126,7 +149,7 @@ def ChatbotCommands(agent, commands):
         for (pattern,command) in _commands:
             match = pattern.match(evt.text)
             if match:
-                command(agent,world,match)
+                command(agent,world,match.groupdict())
                 break
     return Command
             
