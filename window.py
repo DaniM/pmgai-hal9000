@@ -117,6 +117,9 @@ class TerminalWindow(object):
             self.on_key_char(evt.text)
 
         c = evt.key
+        if not c:
+            # FIX: volumes/mute key raise this event too
+            return
         if c.name == 'Enter' and self.text_buffer != '':
             if self.text_buffer.startswith('/'):
                 self.events.user_command(TextEvent(self.text_buffer[1:]))

@@ -107,15 +107,19 @@ class HAL9002(HAL9000):
 class HAL9003(HAL9000):
     def __init__(self, terminal, world):
         super(HAL9003,self).__init__(terminal)
+
         # choose a random start position
         self.location = random.choice( world['map'] )
         self.world = world
+
         # use a chat for the input
         self.chatter = halchat.HAL9000Chatbot(self,haldata.HAL9000_RESPONSES)
         #use another one for the commands
         self.cmder = halcommands.ChatbotCommands(self,halcommands.COMMANDS)
 
+        self.input = halinputs.TextAndVoiceInput(self, terminal)
         self.out = haloutputs.VoiceAndTextOutput(terminal)
+
         # greetings
         self.out.puts( 'Hi this is HAL!')
 
