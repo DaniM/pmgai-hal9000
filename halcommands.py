@@ -73,7 +73,7 @@ def UnrecognizedCommand(agent,world,match):
     agent.out.puts("I'm afraid I can't do that.")
 
 def RelocateCommand(agent,world,match):
-    location = match['location']
+    location = match['location'].lower()
     if location in world['map']:
         if agent.location == location:
             agent.out.set_output_params( {'align':'right', 'color':'#00805A'} )
@@ -90,7 +90,7 @@ def QuitCommand(agent,world,match):
     vispy.app.quit()
 
 def SimpleInteractCommand( agent, world, match ):
-    object_name = match['object']
+    object_name = match['object'].lower()
     interaction = match['verb']
     if object_name in world['devices'][agent.location]:
         # the object exists, can we interact with it?
